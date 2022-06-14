@@ -38,6 +38,10 @@ class AppMarketPlugin : FlutterPlugin, MethodCallHandler {
         } else if (call.method == "toMarket") {
             val packageName = call.argument<String>("packageName")
             toMarket(context, packageName)
+        } else if (call.method == "toMarketByUri") {
+            val upgradeUrl = call.argument<String>("upgradeUrl")
+            val packageName = call.argument<String>("packageName")
+            toMarketByUri(context, upgradeUrl, packageName)
         } else if (call.method == "exist") {
             val packageName = call.argument<String>("packageName")
             packageName?.also {
@@ -78,6 +82,25 @@ class AppMarketPlugin : FlutterPlugin, MethodCallHandler {
         try {
             var packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
             val uri = Uri.parse("market://details?id=${packageInfo.packageName}")
+            val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+            goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            packageName?.also {
+                if (it.isNotEmpty()) {
+                    goToMarket.setPackage(it)
+                }
+            }
+            context.startActivity(goToMarket)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 跳转到url，指定包名
+     */
+    private fun toMarketByUri(context: Context, upgradeUrl: String?, packageName: String?) {
+        try {
+            val uri = Uri.parse(upgradeUrl)
             val goToMarket = Intent(Intent.ACTION_VIEW, uri)
             goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             packageName?.also {

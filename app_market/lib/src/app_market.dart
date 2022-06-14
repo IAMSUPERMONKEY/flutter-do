@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 class AppMarket {
-  static const MethodChannel _channel = const MethodChannel('com.flutter.app_market');
+  static const MethodChannel _channel =
+      const MethodChannel('com.flutter.app_market');
 
   ///
   /// 获取手机上安装的所有应用商店，
@@ -35,6 +36,27 @@ class AppMarket {
   static toMarket({String? packageName, String? appleId}) async {
     var arguments = {'packageName': packageName ?? '', 'appleId': appleId};
     await _channel.invokeMethod('toMarket', arguments);
+  }
+
+  ///
+  /// [packageName] 仅用于Android，指包名，
+  /// [appleId]  仅用于iOS，指appId，是应用程序在app store中生成到。
+  ///
+  /// Android:
+  /// 如果未指定 [packageName]，且手机上安装多个应用市场
+  /// 则弹出对话框，由用户选择进入哪个市场
+  /// 如果指定 [packageName]，直接跳转到指定应用市场
+  ///
+  /// iOS:
+  ///   不处理，使用 toMarket
+  ///
+  static toMarketByUri(
+      {required String upgradeUrl, String? packageName}) async {
+    var arguments = {
+      'upgradeUrl': upgradeUrl,
+      'packageName': packageName ?? ''
+    };
+    await _channel.invokeMethod('toMarketByUri', arguments);
   }
 
   ///
